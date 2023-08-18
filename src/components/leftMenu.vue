@@ -1,3 +1,5 @@
+<!-- eslint-disable prettier/prettier -->
+<!-- eslint-disable prettier/prettier -->
 <template>
   <h3 class="hidden">lnb 영역</h3>
   <div id="lnb_area">
