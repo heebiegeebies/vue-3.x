@@ -15,6 +15,9 @@
         </li>
       </ul>
     </div>
+    <p>selectedResumeNo: {{ selectedResumeNo }}</p>
+    <p>selectedAdNo: {{ selectedAdNo }}</p>
+    <p>selectedAdTitle: {{ selectedAdTitle }}</p>
     <div class="submitArea" style="text-align: center">
       <a class="btnType blue" @click.prevent="submit" name="modal"
         ><span>지원하기</span></a
@@ -34,14 +37,13 @@
 // import {router} from "vue-router";
 
 export default {
-  props: {selectedAdNo: Number},
+  props: {selectedAdNo: Number, selectedAdTitle: String},
   data() {
     return {
       pageSize: 5,
       currentPage: 1,
       selectedResumeNo: 0,
       modalVisible: false,
-      selectedAdTitle: "",
       resumeList: [],
     };
   },
@@ -66,10 +68,7 @@ export default {
         responseType: "json",
       })
         .then((response) => {
-          console.log(response);
           this.resumeList = response.data;
-          console.log(this.resumeList); // wrapping with proxy object happens
-          console.log(JSON.parse(JSON.stringify(this.resumeList))); // to see a raw content
         })
         .catch(function (error) {
           if (error.response) {

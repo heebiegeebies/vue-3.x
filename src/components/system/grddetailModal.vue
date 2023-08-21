@@ -96,11 +96,11 @@
 </template>
 
 <script>
-import { closeModal } from 'jenesius-vue-modal';
+import {closeModal} from "jenesius-vue-modal";
 export default {
   // vue에서는 받아온 변수를 methods에서 직접 핸들링이 불가능하기 때문에
   // 임시 변수를 만들어서 받아온 변수를 넣어 줘야 함
-  props: { title: String, grpcd: String, action: String },
+  props: {title: String, grpcd: String, action: String},
   data: function () {
     return {
       pgrpcd: this.grpcd,
@@ -128,7 +128,7 @@ export default {
     // 신규 등록 시
     if (this.grpcd == null || this.grpcd == "") {
       vm.grp_cod = "";
-      vm.grp_cod_nm = '';
+      vm.grp_cod_nm = "";
       vm.grp_cod_eplti = "";
       vm.grp_use_poa = "";
     } else {

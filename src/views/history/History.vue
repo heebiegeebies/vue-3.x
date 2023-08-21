@@ -1,15 +1,11 @@
 <template>
   <div id="wrap_area">
     <h2 class="hidden">header 영역</h2>
-    <jsp:include page="/WEB-INF/view/common/header.jsp"></jsp:include>
-
     <h2 class="hidden">컨텐츠 영역</h2>
     <div id="container">
       <ul>
         <li class="lnb">
-          <!-- lnb 영역 -->
-          <jsp:include page="/WEB-INF/view/common/lnbMenu.jsp"></jsp:include>
-          <!--// lnb 영역 -->
+          <navigationMenu></navigationMenu>
         </li>
         <li class="contents">
           <!-- contents -->
@@ -17,41 +13,7 @@
           <!-- content -->
           <div class="content">
             <div id="resumeListModal">
-              <div id="resumeListModalContainer" v-show="modalVisible">
-                <div v-if="resumeList.length === 0">
-                  <div>
-                    <p>이력서가 없습니다. 이력서를 작성해주세요</p>
-                    <a href="http://localhost/resume/resumeMgt.do"
-                      >이력서 작성하러 가기</a
-                    >
-                  </div>
-                </div>
-                <div v-else id="resumeList">
-                  <ul v-for="r in resumeList">
-                    <li class="resumeElement">
-                      <label class="resumeLabel">
-                        {{ r.resume_title }}
-                        <input
-                          type="radio"
-                          name="resumeSelection"
-                          :value="r.resume_no"
-                          v-model="selectedResumeNo"
-                        />
-                      </label>
-                    </li>
-                  </ul>
-                </div>
-                <div class="submitArea" style="text-align: center">
-                  <a class="btnType blue" @click.prevent="submit" name="modal"
-                    ><span>지원하기</span></a
-                  >
-                  <a
-                    class="btnType gray close"
-                    @click.prevent="closeResumeListModal"
-                    ><span>닫기</span></a
-                  >
-                </div>
-              </div>
+              <div id="resumeListModalContainer" v-show="modalVisible"></div>
             </div>
             <p class="Location">
               <a href="../dashboard/dashboard.do" class="btn_set home"
@@ -65,77 +27,90 @@
               <span class="btn_nav bold">최근 본 공고 </span>
             </p>
             <p>최근본 공고는 7일간 저장됩니다.</p>
-            <div class="divComGrpCodList">
-              <table class="col">
-                <caption>
-                  caption
-                </caption>
-                <thead>
-                  <tr>
-                    <th scope="col">기업명</th>
-                    <th scope="col">공고명</th>
-                    <th scope="col">고용형태</th>
-                    <th scope="col">경력</th>
-                    <th scope="col">급여</th>
-                    <th scope="col">학력</th>
-                    <th scope="col">근무지</th>
-                    <th scope="col">직무</th>
-                    <th scope="col">마감</th>
-                    <th scope="col">기타</th>
-                    <th scope="col">기타2</th>
-                  </tr>
-                </thead>
-                <tbody id="historyList">
-                  <tr v-for="h in historyList">
-                    <td>{{ h.companyName }}</td>
-                    <td>
-                      <a href="#" @click="openAdDetailModal(h.adNo)">{{
-                        h.title
-                      }}</a>
-                    </td>
-                    <td>{{ h.hireType }}</td>
-                    <td>{{ h.experience }}</td>
-                    <td>{{ h.salary }}</td>
-                    <td>{{ h.education }}</td>
-                    <td>{{ h.location }}</td>
-                    <td>{{ h.position }}</td>
-                    <td v-if="h.daysLeft > 0">
-                      {{ h.dueDate }}(D- {{ h.daysLeft }} )
-                    </td>
-                    <td v-else-if="h.daysLeft === 0">오늘마감!</td>
-                    <td v-else>마감</td>
-                    <td v-if="!h.applied && h.daysLeft >= 0">
-                      <button
-                        type="button"
-                        class="btn blue resumeListButton"
-                        @click="openResumeListModal(h.adNo, h.title)"
-                      >
-                        지원하기
-                      </button>
-                    </td>
-                    <td v-else></td>
-                    <td v-if="!h.bookmarked">
-                      <button class="bookmarkButton" @click="bookmark(h.adNo)">
-                        즐겨찾기
-                      </button>
-                    </td>
-                    <td v-else></td>
-                  </tr>
-                  <input type="hidden" :value="pagination.totalCount" />
-                </tbody>
-              </table>
-            </div>
-
-            <div class="paging_area" id="historyPagination">
-              <ul>
-                <li is="paginationTemplate" :currentPage="currentPage">
-                  {{ currentPage }}
-                </li>
-              </ul>
+            <div>
+              <div class="divComGrpCodList" v-if="hasItems">
+                <table class="col">
+                  <caption>
+                    caption
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">기업명</th>
+                      <th scope="col">공고명</th>
+                      <th scope="col">고용형태</th>
+                      <th scope="col">경력</th>
+                      <th scope="col">급여</th>
+                      <th scope="col">학력</th>
+                      <th scope="col">근무지</th>
+                      <th scope="col">직무</th>
+                      <th scope="col">마감</th>
+                      <th scope="col">기타</th>
+                      <th scope="col">기타2</th>
+                    </tr>
+                  </thead>
+                  <tbody id="historyList">
+                    <tr v-for="h in historyList" :key="h.historyNo">
+                      <td>
+                        <input type="hidden" :value="h.historyNo" />
+                        {{ h.companyName }}
+                      </td>
+                      <td>
+                        <a href="#" @click="openAdDetailModal(h.adNo)">{{
+                          h.title
+                        }}</a>
+                      </td>
+                      <td>{{ h.hireType }}</td>
+                      <td>{{ h.experience }}</td>
+                      <td>{{ h.salary }}</td>
+                      <td>{{ h.education }}</td>
+                      <td>{{ h.location }}</td>
+                      <td>{{ h.position }}</td>
+                      <td v-if="h.daysLeft > 0">
+                        {{ h.dueDate }}(D- {{ h.daysLeft }} )
+                      </td>
+                      <td v-else-if="h.daysLeft === 0">오늘마감!</td>
+                      <td v-else>마감</td>
+                      <td v-if="!h.applied && h.daysLeft >= 0">
+                        <button
+                          type="button"
+                          class="btn blue resumeListButton"
+                          @click="openResumeListModal(h.adNo, h.title)"
+                        >
+                          지원하기
+                        </button>
+                      </td>
+                      <td v-else></td>
+                      <td v-if="!h.bookmarked">
+                        <button
+                          class="bookmarkButton"
+                          @click="bookmark(h.adNo)"
+                        >
+                          즐겨찾기
+                        </button>
+                      </td>
+                      <td v-else></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div>
+                  <paginate
+                    class="justify-content-center"
+                    v-model="pagination.currentPage"
+                    :page-count="pageBlockSize"
+                    :page-range="pageBlockSize"
+                    :margin-pages="0"
+                    :prev-text="'Prev'"
+                    :next-text="'Next'"
+                    :container-class="`pagination`"
+                    :page-class="`page-item`"
+                    :click-handler="clickCallback"
+                  ></paginate>
+                </div>
+              </div>
+              <p v-else>{{ emptyListMessage }}</p>
             </div>
           </div>
           <!--// content -->
-
           <h3 class="hidden">풋터 영역</h3>
         </li>
       </ul>
@@ -143,21 +118,23 @@
   </div>
 </template>
 <script>
+import {openModal} from "jenesius-vue-modal";
+import ResumeList from "@/components/resume/ResumeList.vue";
+import Menu from "@/components/leftMenu.vue";
+import Paginate from "vuejs-paginate-next";
+
 export default {
   data: function () {
     return {
-      currentPage: 1,
-      pageSize: 5,
-      pageBlockSize: 5,
+      pageBlockSize: 0,
       keyword: "",
       historyList: [],
-      pagination: {},
-      paging: "",
+      pagination: {pageSize: 5, currentPage: 1, totalCount: 0},
       adDetail: {},
       applied: false,
       historyTotalCount: 0,
+      emptyListMessage: "목록이 없습니다.",
 
-      resumeList: [],
       currentResumePage: 1,
       selectedResumeNo: 0,
       selectedAdNo: 0,
@@ -165,92 +142,108 @@ export default {
       selectedAdTitle: "",
     };
   },
+  computed: {
+    hasItems() {
+      return this.historyList.length > 0;
+    },
+  },
   methods: {
+    calculatePage() {
+      const total = this.pagination.totalCount;
+      const page = this.pagination.pageSize;
+      const xx = total % page;
+      let result = parseInt(total / page);
+
+      if (xx == 0) {
+        this.pageBlockSize = result;
+      } else {
+        result = result + 1;
+        this.pageBlockSize = result;
+      }
+    },
     fetchHistoryList() {
       const param = new URLSearchParams();
 
-      param.append("currentPage", this.currentPage);
-      param.append("pageSize", this.pageSize);
+      param.append("currentPage", this.pagination.currentPage);
+      param.append("pageSize", this.pagination.pageSize);
       param.append("keyword", this.keyword);
+      param.append("loginId", this.$store.state.loginInfo.loginId);
 
       this.axios
-        .get("/history/vueHistoryList.do", param)
-        .then(function (response) {
-          console.log(response.data);
+        .get("/history/vueHistoryList.do", {
+          params: param,
+          headers: {"content-type": "application/json"},
+        })
+        .then((response) => {
+          this.historyList = response.data.data;
+          this.pagination = response.data.pagination;
+          this.calculatePage();
+        })
+        .catch((error) => {
+          alert(`error occurred: ${error.message}`);
         });
     },
-    fetchListCallback(response) {
-      this.historyList = response.data;
-      this.pagination = response.pagination;
-      const vm = this;
+    // openAdDetailModal(adNo) {
+    //   const param = {
+    //     ad_no: adNo,
+    //   };
 
-      const totalCount = this.pagination.totalCount;
-      
-      this.historyTotalCount = totalCount;
-      console.log(`total count : ${totalCount}`);
+    //   const vm = this;
 
-      let pagingHtml = "";
+    //   function adDetailCallback(response) {
+    //     gfModalPop("#adDetailModal");
+    //     historyComponent.applied = vm.checkApplied(response.appliedAt);
+    //     historyComponent.adDetail = response;
 
-      if (totalCount > 0) {
-    	  alert('total count gt 0')
-//        pagingHtml = buildPaginationHtml(
-//          this.currentPage,
-//          totalCount,
-//          this.pageSize,
-//          this.pageBlockSize,
-//          "fetchHistoryList",
-//          "fetchListCallback"
-//        );
-        
-      } else {
-        const emptyPagingHtml =
-          "<div id='emptyResultArea'><p>최근 본 공고가 없습니다.</p></div>";
-        pagingHtml = emptyPagingHtml;
-      }
-      this.paging = pagingHtml;
-    },
-    openAdDetailModal(adNo) {
-      const param = {
-        ad_no: adNo,
-      };
+    //     comcombo(
+    //       "company_category",
+    //       "user_company_category",
+    //       "sel",
+    //       response.user_company_category,
+    //     );
+    //     comcombo(
+    //       "resume_experience",
+    //       "ad_experience",
+    //       "sel",
+    //       response.ad_experience,
+    //     );
+    //     comcombo("resume_salary", "ad_salary", "sel", response.ad_salary);
+    //     comcombo("education", "ad_education", "sel", response.ad_education);
+    //     comcombo("position", "ad_position", "sel", response.ad_position);
+    //     comcombo("ad_role", "ad_role", "sel", response.ad_role);
+    //     comcombo("ad_type", "ad_type", "sel", response.ad_type);
+    //     comcombo("location", "ad_location", "sel", response.ad_location);
+    //     comcombo(
+    //       "company_size",
+    //       "user_company_size",
+    //       "sel",
+    //       response.user_company_size,
+    //     );
 
-      const vm = this;
+    //     disableAllSelectTags();
 
-      function adDetailCallback(response) {
-        gfModalPop("#adDetailModal");
-        historyComponent.applied = vm.checkApplied(response.appliedAt);
-        historyComponent.adDetail = response;
+    //     function disableAllSelectTags() {
+    //       const parentModal = document.getElementById("adDetailModal");
+    //       const selectTags = parentModal.querySelectorAll("select");
 
-        comcombo("company_category", "user_company_category", "sel", response.user_company_category);
-        comcombo("resume_experience", "ad_experience", "sel", response.ad_experience);
-        comcombo("resume_salary", "ad_salary", "sel", response.ad_salary);
-        comcombo("education", "ad_education", "sel", response.ad_education);
-        comcombo("position", "ad_position", "sel", response.ad_position);
-        comcombo("ad_role", "ad_role", "sel", response.ad_role);
-        comcombo("ad_type", "ad_type", "sel", response.ad_type);
-        comcombo("location", "ad_location", "sel", response.ad_location);
-        comcombo("company_size", "user_company_size", "sel", response.user_company_size);
+    //       selectTags.forEach((s) => {
+    //         s.disabled = true;
+    //       });
+    //     }
+    //   }
 
-        disableAllSelectTags();
-
-        function disableAllSelectTags() {
-          const parentModal = document.getElementById("adDetailModal");
-          const selectTags = parentModal.querySelectorAll("select");
-
-          selectTags.forEach((s) => {
-            s.disabled = true;
-          });
-        }
-      }
-
-      callAjax(
-        "/ad/adDetailForUser.do",
-        "GET",
-        "json",
-        "false",
-        param,
-        adDetailCallback
-      );
+    //   callAjax(
+    //     "/ad/adDetailForUser.do",
+    //     "GET",
+    //     "json",
+    //     "false",
+    //     param,
+    //     adDetailCallback,
+    //   );
+    // },
+    clickCallback(pageNum) {
+      this.pagination.currentPage = pageNum;
+      this.fetchHistoryList();
     },
     checkApplied(date) {
       console.log(`appliedAt: ${date}`);
@@ -259,99 +252,69 @@ export default {
       }
       return false;
     },
-    fetchResumeList(currentPage, resumeListCallback) {
-      currentPage = currentPage || 1;
-
-      const param = {
-        pageSize: 10,
-        cpage: currentPage,
-      };
-
-      callAjax(
-        "/resume/resumeListJson.do",
-        "GET",
-        "json",
-        "false",
-        param,
-        resumeListCallback
-      );
-    },
     resumeListCallback(response) {
       this.resumeList = response;
     },
     toggleModal() {
       this.modalVisible = !this.modalVisible;
     },
-    openResumeListModal(adNo, adTitle) {
-      this.selectedAdNo = adNo;
-      this.selectedAdTitle = adTitle;
-      if (!this.modalVisible) this.modalVisible = true;
+    openResumeListModal: async function (adNo, adTitle) {
+      const props = {
+        selectedAdNo: adNo,
+        selectedAdTitle: adTitle,
+      };
+
+      const modal = await openModal(ResumeList, props);
+
+      modal.onclose = () => {
+        console.log("close");
+        return true;
+      };
     },
-    closeResumeListModal() {
-      this.selectedAdNo = 0;
-      this.selectedResumeNo = 0;
-      this.modalVisible = false;
-    },
-    submit() {
-      if (confirm(`${this.selectedAdTitle} 에 지원하시겠습니까?`)) {
-        if (!this.selectedAdNo || !this.selectedResumeNo) {
-          alert("파라미터가 잘못 설정되었습니다");
-          return;
-        }
-        
-        const redirectPageUrl = window.location.href;
-        
-        const param = JSON.stringify({
-        	adNo : this.selectedAdNo,
-        	resumeNo: this.selectedResumeNo,
-        	redirectPageUrl: redirectPageUrl,
-        });
-        
-        axios
-        	.post(API_ROOT + "/resume/submit.do", param, {headers : { 'Content-type': 'application/json'}})
-        	.then(function(response){
-        		if(response.status === 201){
-        			console.log(response);
-        			alert('정상 제출 되었습니다.');
-        			window.location.href = response.data;
-        		};
-        	})
-        	.catch(function(error) {
-        		alert("error occurred");
-        	});
-      } 
-    },
+    // closeResumeListModal() {
+    //   this.selectedAdNo = 0;
+    //   this.selectedResumeNo = 0;
+    //   this.modalVisible = false;
+    // },
   },
   bookmark(adNo) {
-	  if(!adNo) {
-		  alert('unexpected error occurred : no adNo present');
-		  window.reload();
-		  return;
-	  }
-	  
-	  const redirectPageUrl = window.location.href;
-	  
-	  const param = JSON.stringify({
-		    adNo: adNo,
-		    redirectPageUrl: redirectPageUrl,
-	  });
-	  
-	  var bookmarkCallback = function(response){
-		  console.log(response.data);
-		  if(response.status === 200 || response.status === 201){
-			  alert('북마크 되었습니다.');
-		  }
-	  }
-	 
-	  axios.
-	  	post(API_ROOT + "/like/post.do", param, {headers : {'Content-type': 'application/json'}})
-	  	.then(function (response) {bookmarkCallback(response)})
-	  	.catch(function(error) {alert("error occurred:", error)});
-	  
+    if (!adNo) {
+      alert("unexpected error occurred : no adNo present");
+      window.reload();
+      return;
+    }
+
+    const redirectPageUrl = window.location.href;
+
+    const param = JSON.stringify({
+      adNo: adNo,
+      redirectPageUrl: redirectPageUrl,
+    });
+
+    var bookmarkCallback = function (response) {
+      console.log(response.data);
+      if (response.status === 200 || response.status === 201) {
+        alert("북마크 되었습니다.");
+      }
+    };
+
+    this.axios
+      .post("http://localhost/like/post.do", param, {
+        headers: {"Content-type": "application/json"},
+      })
+      .then(function (response) {
+        bookmarkCallback(response);
+      })
+      .catch(function (error) {
+        alert("error occurred:", error);
+      });
   },
   mounted() {
-    this.fetchHistoryList(this.currentPage, this.fetchListCallback);
-    this.fetchResumeList(this.currentPage, this.resumeListCallback);
+    this.fetchHistoryList();
+  },
+  components: {
+    navigationMenu: Menu,
+    paginate: Paginate,
   },
 };
 </script>
