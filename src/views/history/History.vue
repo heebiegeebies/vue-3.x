@@ -160,6 +160,8 @@ export default {
         result = result + 1;
         this.pageBlockSize = result;
       }
+
+      console.log(`page count: ${result}`);
     },
     fetchHistoryList() {
       const param = new URLSearchParams();
@@ -167,7 +169,7 @@ export default {
       param.append("currentPage", this.pagination.currentPage);
       param.append("pageSize", this.pagination.pageSize);
       param.append("keyword", this.keyword);
-      param.append("loginId", this.$store.state.loginInfo.loginId);
+      // param.append("loginId", this.$store.state.loginInfo.loginId);
 
       this.axios
         .get("/history/vueHistoryList.do", {
@@ -252,12 +254,6 @@ export default {
       }
       return false;
     },
-    resumeListCallback(response) {
-      this.resumeList = response;
-    },
-    toggleModal() {
-      this.modalVisible = !this.modalVisible;
-    },
     openResumeListModal: async function (adNo, adTitle) {
       const props = {
         selectedAdNo: adNo,
@@ -271,11 +267,6 @@ export default {
         return true;
       };
     },
-    // closeResumeListModal() {
-    //   this.selectedAdNo = 0;
-    //   this.selectedResumeNo = 0;
-    //   this.modalVisible = false;
-    // },
   },
   bookmark(adNo) {
     if (!adNo) {

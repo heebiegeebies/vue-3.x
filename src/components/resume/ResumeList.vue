@@ -97,19 +97,22 @@ export default {
           return;
         }
 
-        const redirectPageUrl = window.location.href;
-
-        const param = JSON.stringify({
+        const param = {
           adNo: this.selectedAdNo,
           resumeNo: this.selectedResumeNo,
-          redirectPageUrl: redirectPageUrl,
-        });
+          redirectPageUrl: window.location.href,
+          loginId: this.$store.state.loginInfo.loginId,
+        };
+
+        console.log(param);
 
         this.axios
-          .post("http://localhost/resume/submit.do", param, {
-            headers: {"Content-type": "application/json"},
+          .get("/test/get", {
+            params: param,
+            headers: {"content-type": "application/x-www-form-urlencoded"},
           })
           .then(function (response) {
+            console.log(response);
             if (response.status === 201) {
               console.log(response);
               alert("정상 제출 되었습니다.");
@@ -119,6 +122,22 @@ export default {
           .catch(function (error) {
             alert(`error occurred ${error.message}`);
           });
+
+        // this.axios
+        //   .post("http://localhost/resume/submit.do", {
+        //     params: param,
+        //     headers: {"content-type": "application/x-www-form-urlencoded"},
+        //   })
+        //   .then(function (response) {
+        //     if (response.status === 201) {
+        //       console.log(response);
+        //       alert("정상 제출 되었습니다.");
+        //       window.location.href = response.data;
+        //     }
+        //   })
+        //   .catch(function (error) {
+        //     alert(`error occurred ${error.message}`);
+        //   });
       }
     },
   },
@@ -127,3 +146,35 @@ export default {
   },
 };
 </script>
+<style scoped>
+.modal-item {
+  background-color: ghostwhite;
+}
+
+div#resumeList {
+  font-size: 15px;
+  border-top: 1px solid darkgray;
+  border-left: 1px solid darkgray;
+  border-right: 1px solid darkgray;
+}
+
+li.resumeElement {
+  border-bottom: 1px solid darkgray;
+  width: 20em;
+  font-size: 15px;
+  height: 3em;
+  line-height: 3em;
+}
+
+li.resumeElement > label {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  text-align: center;
+  height: 100%;
+}
+.submitArea a.close:hover,
+a.close:focus {
+  cursor: pointer;
+}
+</style>
