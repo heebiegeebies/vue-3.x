@@ -29,13 +29,11 @@
   </div>
   <div v-else>
     <p>이력서가 없습니다. 이력서를 작성해주세요</p>
-    <a href="http://localhost/resume/resumeMgt.do">이력서 작성하러 가기</a>
+    <router link="/dashboard/resume/resumeMgtvue">이력서 작성하러 가기</router>
   </div>
 </template>
 
 <script>
-// import {router} from "vue-router";
-
 export default {
   props: {selectedAdNo: Number, selectedAdTitle: String},
   data() {
@@ -107,37 +105,18 @@ export default {
         console.log(param);
 
         this.axios
-          .get("/test/get", {
-            params: param,
-            headers: {"content-type": "application/x-www-form-urlencoded"},
-          })
-          .then(function (response) {
-            console.log(response);
+          .post("/resume/submit.do", param)
+          .then((response) => {
             if (response.status === 201) {
               console.log(response);
               alert("정상 제출 되었습니다.");
-              window.location.href = response.data;
+
+              this.$router.go();
             }
           })
           .catch(function (error) {
             alert(`error occurred ${error.message}`);
           });
-
-        // this.axios
-        //   .post("http://localhost/resume/submit.do", {
-        //     params: param,
-        //     headers: {"content-type": "application/x-www-form-urlencoded"},
-        //   })
-        //   .then(function (response) {
-        //     if (response.status === 201) {
-        //       console.log(response);
-        //       alert("정상 제출 되었습니다.");
-        //       window.location.href = response.data;
-        //     }
-        //   })
-        //   .catch(function (error) {
-        //     alert(`error occurred ${error.message}`);
-        //   });
       }
     },
   },

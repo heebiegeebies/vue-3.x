@@ -3,10 +3,10 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from "@vue/runtime-core";
+import {defineAsyncComponent} from "@vue/runtime-core";
 
 export default {
-  props: { type: String, menu: String },
+  props: {type: String, menu: String},
   data: function () {
     return {};
   },
@@ -22,7 +22,7 @@ export default {
         return defineAsyncComponent(() => import("@/views/Home"));
       } else {
         return defineAsyncComponent(() =>
-          import("@/views/" + this.type + "/" + this.menu + ".vue")
+          import("@/views/" + this.type + "/" + this.menu + ".vue"),
         );
       }
     },

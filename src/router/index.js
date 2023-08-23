@@ -63,16 +63,6 @@ const routes = [
     name: "login",
     component: Login,
   },
-  {
-    path: "/test",
-    name: "ResumeList",
-    component: () => import("../components/resume/ResumeList.vue"),
-  },
-  {
-    path: "/history/historyMain",
-    name: "history",
-    component: () => import("../views/history/History.vue"),
-  },
 ];
 
 const router = createRouter({

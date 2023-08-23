@@ -4,17 +4,12 @@
     <h2 class="hidden">컨텐츠 영역</h2>
     <div id="container">
       <ul>
-        <li class="lnb">
-          <navigationMenu></navigationMenu>
-        </li>
+        <!-- <li class="lnb"></li> -->
         <li class="contents">
           <!-- contents -->
           <h3 class="hidden">contents 영역</h3>
           <!-- content -->
           <div class="content">
-            <div id="resumeListModal">
-              <div id="resumeListModalContainer" v-show="modalVisible"></div>
-            </div>
             <p class="Location">
               <a href="../dashboard/dashboard.do" class="btn_set home"
                 >메인으로</a
@@ -120,7 +115,6 @@
 <script>
 import {openModal} from "jenesius-vue-modal";
 import ResumeList from "@/components/resume/ResumeList.vue";
-import Menu from "@/components/leftMenu.vue";
 import Paginate from "vuejs-paginate-next";
 
 export default {
@@ -174,7 +168,6 @@ export default {
       this.axios
         .get("/history/vueHistoryList.do", {
           params: param,
-          headers: {"content-type": "application/json"},
         })
         .then((response) => {
           this.historyList = response.data.data;
@@ -267,44 +260,34 @@ export default {
         return true;
       };
     },
-  },
-  bookmark(adNo) {
-    if (!adNo) {
-      alert("unexpected error occurred : no adNo present");
-      window.reload();
-      return;
-    }
-
-    const redirectPageUrl = window.location.href;
-
-    const param = JSON.stringify({
-      adNo: adNo,
-      redirectPageUrl: redirectPageUrl,
-    });
-
-    var bookmarkCallback = function (response) {
-      console.log(response.data);
-      if (response.status === 200 || response.status === 201) {
-        alert("북마크 되었습니다.");
+    bookmark(adNo) {
+      if (!adNo) {
+        alert("예외 발생: adNo가 입력되지 않았습니다");
+        return;
       }
-    };
 
-    this.axios
-      .post("http://localhost/like/post.do", param, {
-        headers: {"Content-type": "application/json"},
-      })
-      .then(function (response) {
-        bookmarkCallback(response);
-      })
-      .catch(function (error) {
-        alert("error occurred:", error);
-      });
+      const param = {
+        adNo: adNo,
+        loginId: this.$store.state.loginInfo.loginId,
+      };
+
+      this.axios
+        .post("/like/post.do", param)
+        .then((response) => {
+          if (response.status === 200 || response.status === 201) {
+            alert("정상적으로 스크랩 되었습니다.");
+            this.$router.go();
+          }
+        })
+        .catch(function (error) {
+          alert("에러 발생", error);
+        });
+    },
   },
   mounted() {
     this.fetchHistoryList();
   },
   components: {
-    navigationMenu: Menu,
     paginate: Paginate,
   },
 };

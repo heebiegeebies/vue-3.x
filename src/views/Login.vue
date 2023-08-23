@@ -110,7 +110,7 @@ export default {
         this.axios
           .post(
             "/loginProc.do",
-            new URLSearchParams({ lgn_Id: this.lgn_Id, pwd: this.pwd })
+            new URLSearchParams({lgn_Id: this.lgn_Id, pwd: this.pwd}),
           )
           .then((resp) => {
             let data = resp.data;
@@ -122,7 +122,7 @@ export default {
                 serverName: data.serverName,
                 usrMnuAtrt: data.usrMnuAtrt,
               });
-              this.$store.commit("auth", { type: data.userType });
+              this.$store.commit("auth", {type: data.userType});
 
               // guide for making vue files
               data.usrMnuAtrt.forEach(function (item) {
@@ -131,7 +131,10 @@ export default {
                   let purl = item.mnu_url.replace(".do", ".vue");
                   let vueFilePath = "@/views" + purl;
                   console.log(
-                    "  메뉴명: " + item.mnu_nm + " || 파일경로 : " + vueFilePath
+                    "  메뉴명: " +
+                      item.mnu_nm +
+                      " || 파일경로 : " +
+                      vueFilePath,
                   );
                 });
               });
