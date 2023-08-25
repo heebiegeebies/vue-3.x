@@ -63,6 +63,11 @@ const routes = [
     name: "login",
     component: Login,
   },
+  {
+    path: "/test",
+    name: "postcode-test",
+    component: () => import("../components/ParentComponent.vue"),
+  },
 ];
 
 const router = createRouter({
