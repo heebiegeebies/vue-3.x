@@ -1,5 +1,5 @@
 <template>
-  <VueDaumPostcode @complete="$emit('onComplete')">
+  <VueDaumPostcode @complete="onComplete">
     <template #loading>
       <div>...Loading...</div>
     </template>
@@ -7,22 +7,22 @@
 </template>
 
 <script>
+import {closeModal} from "jenesius-vue-modal";
+
 export default {
   data() {
     return {
-      addr: "",
+      address: "",
       detAddr: "",
+      zoneCode: "",
     };
   },
   methods: {
     onComplete(newResult) {
-      console.log("result is being emitted");
+      this.address = newResult.address;
+      this.zoneCode = newResult.zonecode;
 
-      this.daumPostcode.result = newResult;
-      this.daumPostcode.isOpen = false;
-      this.formData.zip_code = newResult.zonecode;
-      this.formData.addr = newResult.addr;
-      //   return newResult;
+      closeModal();
     },
   },
 };

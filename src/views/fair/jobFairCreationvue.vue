@@ -60,13 +60,13 @@
                         style="width: 50%"
                         name="zip_code"
                         id="zip_code"
-                        v-model="formData.zip_code"
+                        :value="formData.zip_code"
                         readonly
                       />
                       <input
                         type="button"
                         value="우편번호 찾기"
-                        @click="execDaumPostcode"
+                        @click="openDaumPostcodeModal"
                         id="post_cd"
                         style="width: 35%; heigh: 50%; cursor: pointer"
                       />
@@ -188,39 +188,16 @@
         </ul>
       </div>
     </div>
-    <div>
-      <div>
-        <template v-if="!daumPostcode.isOpen">
-          <a class="button" @click="openDaumPostcodeModal">우편번호입력</a>
-        </template>
-        <template v-else>
-          <VueDaumPostcode @complete="onComplete">
-            <template #loading>
-              <div>...Loading...</div>
-            </template>
-          </VueDaumPostcode>
-        </template>
-      </div>
-      <div>
-        <pre v-if="daumPostcode.result">{{ daumPostcode.result }}</pre>
-      </div>
-    </div>
   </form>
 </template>
 
 <script>
 import {openModal} from "jenesius-vue-modal";
-import {VueDaumPostcode} from "vue-daum-postcode";
+import VueDaumPostcodeComponent from "@/components/VueDaumPostcodeComponent.vue";
 
 export default {
   data() {
     return {
-      daumPostcode: {
-        result: null,
-        isOpen: false,
-        addr: "",
-        detAddr: "",
-      },
       formData: {
         fairname: "",
         zip_code: "",
@@ -260,7 +237,7 @@ export default {
         },
         {prop: "formData.enddate", message: "시작일 또는 종료일을 입력하세요"},
         {prop: "formData.userNum", message: "박람회 수용인원을 입력해주세요"},
-        {prop: "formData.locationValue", message: "전시장을 선택해주세요"},
+        {prop: "formData.booth", message: "전시장을 선택해주세요"},
         {prop: "file.name", message: "이미지를 첨부해주세요"},
         {prop: "file.content", message: "이미지를 첨부해주세요"},
       ],
@@ -268,16 +245,14 @@ export default {
   },
   methods: {
     openDaumPostcodeModal: async function () {
-      const modal = await openModal(VueDaumPostcode);
-      modal.onclose = () => {
-        return true;
+      const vm = this;
+      const modal = await openModal(VueDaumPostcodeComponent);
+
+      // modal로부터 데이터를 가져옴
+      modal.onclose = function () {
+        vm.formData.addr = modal.instance.address;
+        vm.formData.zip_code = modal.instance.zoneCode;
       };
-    },
-    onComplete(newResult) {
-      this.daumPostcode.result = newResult;
-      this.daumPostcode.isOpen = false;
-      this.formData.zip_code = newResult.zonecode;
-      this.formData.addr = newResult.addr;
     },
     handleFileChange(event) {
       const file = event.target.files[0];
@@ -285,15 +260,35 @@ export default {
       this.file.name = file.name;
     },
     submit() {
-      console.log(this.formData);
-      console.log(this.file);
+      const param = new FormData();
+      param.enctype = "multipart/form-data";
+      param.append("fairname", this.formData.fairname);
+      param.append("zip_code", this.formData.zip_code);
+      param.append("addr", this.formData.addr);
+      param.append("detAddr", this.formData.detAddr);
+      param.append("startdate", this.formData.startdate);
+      param.append("enddate", this.formData.enddate);
+      param.append("userNum", this.formData.userNum);
+      param.append("location", this.formData.booth);
+      param.append("userNm", this.$store.state.loginInfo.userNm);
+      param.append("booth", this.formData.booth);
+      param.append("loginId", this.$store.state.loginInfo.loginId);
 
-      // const data = this.formData;
+      param.append("addfile", this.file.content);
+      console.log(param);
 
-      // const param = {
-      //   data: data,
-      //   file: this.file.content,
-      // };
+      this.axios
+        .post("/fair/creationList.do", param)
+        .then((response) => {
+          if (response.status === 200) {
+            alert("성공적으로 저장되었습니다. ");
+            this.$router.go();
+          }
+        })
+        .catch((error) => {
+          alert(`문제가 발생했습니다. ${error.message}`);
+          this.$router.go();
+        });
     },
     validate() {
       const rules = this.validationRules;
